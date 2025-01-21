@@ -1,0 +1,41 @@
+Steps
+
+1) Add Gitlab Registry URL in Docker Daemon. Replace above URL with your Gitlab Registry URL, written in etc/gitLab/gitLab.rb file.
+
+	sudo vi /etc/docker/daemon.json
+
+{
+  "insecure-registries": ["192.168.18.170:5000"]
+}
+
+
+2) Add your port (5000 etc. etc.) to firewall if it is not disabled
+
+	sudo ufw allow 5000
+
+3) Restart Docker
+
+	sudo systemctl restart docker
+
+
+
+4) Start docker local registry. If your port is 5001, write below 5001:5000 etc. etc.
+
+   docker run -d -p 5000:5000 --name registry registry:2 
+
+
+5) In Gitlab, Go to (user_settings > Personal Access Token) and Create Personal Access Token for Docker with read_registry, write_registry permissions
+
+6) Login into Registry. Replace it with your Registry URL, written in etc/gitLab/gitLab.rb file
+
+	docker login 192.168.18.170:5000    
+
+username = Your Gitlab Username (root, 1zee etc.)
+Password = Personal Access Token
+
+_________________________________________________________
+
+Gitlab Container Registry is now connected to Docker
+
+Navigate project/container_registry for verification
+_________________________________________________________
