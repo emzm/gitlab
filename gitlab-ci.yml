@@ -1,0 +1,53 @@
+stages:
+  - git-clone
+  - build
+  - deploy
+
+###########################
+# 1) CLONE STAGE
+###########################
+clone_private_repo:
+  stage: git-clone
+  variables:
+    STAGE_NAME: "Git Clone"
+    ENVIRONMENTNAME: "${CI_COMMIT_REF_NAME}"
+  script:
+    - echo "Cloning the GitHub repository..."
+    - git clone https://$GITHUB_TOKEN@github.com/emzm/gitlabtest1.git
+    - ls -la
+    - export GH_COMMIT_ID=$(git rev-parse HEAD | cut -c1-7)
+    
+    # Pipeline started notification
+    - chmod +x slack_notify.sh
+    - ./slack_notify.sh start "$GH_COMMIT_ID"
+
+###########################
+# 2) BUILD STAGE
+###########################
+build_job:
+  stage: build
+  variables:
+    STAGE_NAME: "Build"
+    ENVIRONMENTNAME: "${CI_COMMIT_REF_NAME}"
+  script:
+    - echo "Here, run your build commands..."
+
+###########################
+# 3) DEPLOY STAGE
+###########################
+deploy_job:
+  stage: deploy
+  variables:
+    STAGE_NAME: "Deploy"
+    ENVIRONMENTNAME: "${CI_COMMIT_REF_NAME}"
+  script:
+    - echo "Here, run your deployment commands..."
+    - echo "scp files to server or run ansible playbook"
+
+###########################
+# GLOBAL AFTER SCRIPT (SLACK)
+###########################
+after_script:
+  - if [ ${CI_JOB_STATUS} == "success" ]; then EXIT_STATUS=0; else EXIT_STATUS=1; fi
+  - chmod +x slack_notify.sh || echo "Could not set permissions"
+  - ./slack_notify.sh complete
