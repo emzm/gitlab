@@ -1,0 +1,24 @@
+stages:
+  - build
+
+variables:
+  DOCKER_REGISTRY: "192.168.18.170:5000"
+  IMAGE_NAME: "node-custom"
+  IMAGE_TAG: "22-bullseye-bun-eas"  # Updated tag name to reflect content
+  DOCKER_TLS_CERTDIR: ""  # Disable TLS for simplicity
+
+build-and-push:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      command: ["--insecure-registry=192.168.18.170:5000"]  # Configure insecure registry directly
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+  script:
+    - sleep 5  # Give Docker daemon time to start
+    - docker info
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+    - docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+    - echo "Image successfully pushed to $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
