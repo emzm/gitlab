@@ -1,0 +1,10 @@
+stages:
+  - test
+
+test-local-registry:
+  stage: test
+  image: 192.168.18.170:5000/node:22-bullseye
+  script:
+    - echo "Successfully pulled image from local registry!"
+    - node --version
+    - npm --version
